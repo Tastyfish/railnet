@@ -5,7 +5,7 @@ os.loadAPI "/extlib/dev"
 os.loadAPI "/extlib/gui"
 os.loadAPI "/extlib/db"
 
-local railDB = db.openOrCreate("/railnet.db", {name="string", dest="string", description="string", usage="number")
+local railDB = db.openOrCreate("/railnet.db", {name="string", dest="string", description="string", usage="number"})
 local screen = dev.get("monitor")
 local printer = dev.get("ticketmachine")
 
