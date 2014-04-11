@@ -39,11 +39,12 @@ downScreen = gui.finishForm()
 
 ---- Destination Selection Screen ----
 gui.newLabel{
-	text = "ICing Destination Selection",
+	text = "ICing Station List",
 	color = colors.cyan,
 	bounds = rect.new(1, 1, screenW, 1)
 }
-local destList = gui.newListBox{
+local destList
+destList = gui.newListBox{
 	bounds = rect.new(1, 3, screenW, pageSize),
 	select = function()
 		ticketDest = destList.items[destList.selectedItem]
@@ -200,6 +201,7 @@ while true do
 			else
 				railDB:insert{name = name, description = desc, dest = dest, usage = 0}
 			end
+			updateList()
 		elseif p1 == "d" then
 			io.write "Name? "
 			local name = io.read()
