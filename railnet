@@ -60,9 +60,9 @@ local function updateList()
 	pageNumber:draw(screen)
 	destList.items = getDestinations(page):select(function(e)
 		if e.description and #e.description > 0 then
-			return ("%20s: %s"):format(e.name, e.description)
+			return ("%20s: %s"):format(tostring(e.name), tostring(e.description))
 		else
-			return ("%20s"):format(e.name)
+			return ("%20s"):format(tostring(e.name))
 		end
 	end)
 	destList:draw(screen)
@@ -89,7 +89,7 @@ gui.newButton{
 destScreen = gui.finishForm(function()
 	page = 1
 	updateList()
-	if #destList.item == 0 then
+	if #destList.items == 0 then
 		gui.setForm(screen, downScreen)
 	end
 end)
@@ -211,7 +211,7 @@ while true do
 			end
 		elseif p1 == "q" then
 			gui.setForm(screen, downScreen)
-			shell.exit()
+			break
 		end
 	elseif event == "key" then
 		--gui.keypress(screen, p1, false)
