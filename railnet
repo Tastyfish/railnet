@@ -22,7 +22,7 @@ local pageSize = screenH - 6
 local printTimer, countdownTimer
 local ticketDest, countdown
 
-local function getDestinations(page) do
+local function getDestinations(page)
 	return railDB:query():sortByDescending("usage"):skip((page - 1) * pageSize):take(pageSize)
 end
 
@@ -63,6 +63,7 @@ local function updateList()
 			return ("%20s: %s"):format(e.name, e.description)
 		else
 			return ("%20s"):format(e.name)
+		end
 	end)
 	destList:draw(screen)
 end
