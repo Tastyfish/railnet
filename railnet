@@ -90,7 +90,7 @@ destScreen = gui.finishForm(function()
 	page = 1
 	updateList()
 	if #destList.item == 0 then
-		gui.setForm(downScreen)
+		gui.setForm(screen, downScreen)
 	end
 end)
 
@@ -172,7 +172,7 @@ countdownScreen = gui.finishForm(function()
 end)
 
 ---- main program loop ----
-gui.setForm(destScreen)
+gui.setForm(screen, destScreen)
 while true do
 	local event, p1, p2, p3, p4 = os.pullEvent()
 	if event == "mouse_click" or event == "monitor_touch" then
