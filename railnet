@@ -59,13 +59,15 @@ local pageNumber = gui.newLabel{
 local function updateList()
 	pageNumber.text = tostring(page)
 	pageNumber:draw(screen)
-	destList.items = getDestinations(page):select(function(e)
-		if e.description and #e.description > 0 then
-			return ("%20s: %s"):format(tostring(e.name), tostring(e.description))
-		else
-			return ("%20s"):format(tostring(e.name))
-		end
-	end)
+	destList.items = getDestinations(page):select("name"):values()
+	--function(e)
+		--if e.description and #e.description > 0 then
+		--	return ("%20s: %s"):format(tostring(e.name), tostring(e.description))
+		--else
+		--	return ("%20s"):format(tostring(e.name))
+		--end
+		--return e.name
+	--end)
 	destList:draw(screen)
 end
 gui.newButton{
