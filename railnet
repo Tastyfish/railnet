@@ -118,8 +118,17 @@ gui.newButton {
 }
 function updatePrint()
 	-- check paper and ink
-	local paper = printer.getStackBySlot(1).qty
-	local ink = printer.getStackBySlot(2).qty
+	local paper, ink
+	if printer.getStackInSlot(1) then
+		paper = printer.getStackInSlot(1).qty
+	else
+		paper = 0
+	end
+	if printer.getStackInSlot(2) then
+		ink = printer.getStackInSlot(2).qty
+	else
+		ink = 0
+	end
 	
 	if paper == 0 then
 		printStatusLabel.text = "TICKET ROLL EMPTY"
