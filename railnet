@@ -183,6 +183,67 @@ countdownScreen = gui.finishForm(function()
 	updateCountdown()
 end)
 
+local function addDest()
+	io.write "Name? "
+	local name = io.read()
+	local dest = name:gsub("%W+", "")
+	io.write "Description? "
+	local desc = io.read()
+	io.write("Dest ("..dest..")? ")
+	local destt = io.read()
+	if destt ~= "" then
+		dest = destt
+	end
+	
+	-- check for collision
+	local match = railDB:query():where("$name:upper() == ?:upper() or $dest:upper() == ?:upper()", name, dest):selectFirst()
+	if match then
+		print(("Collides with station %s."):format(match.name))
+	else
+		railDB:insert{name = name, description = desc, dest = dest, usage = 0}
+	end
+	updateList()
+end
+
+local function deleteDest()
+	io.write "Name? "
+	local name = io.read()
+	local match = railDB:query():where("$name:upper() == ?:upper()", name):selectFirst()
+	if not match then
+		print("Could not find entry.")
+	else
+		railDB:query():where("$name == ?", name):delete()
+	end
+end
+
+local function editDest()
+	io.write "Old name?"
+	local name = io.read()
+	local match = railDB:query():where("$name:upper() == ?:upper()", name):selectFirst()
+	
+	io.write "New name? "
+	name = io.read()
+	if not match then
+		print("Could not find entry.")
+		return
+	else
+	
+	io.write "Name("..match.name..")? "
+	local name = io.read()
+	if #name == 0 then name = match.name end
+	
+	io.write "Description("..match.description..")? "
+	local desc = io.read()
+	if #desc == 0 then desc = match.description end
+	
+	io.write("Dest ("..match.dest..")? ")
+	local dest = io.read()
+	if #dest == 0 then dest = match.dest end
+	
+	railDB:query():where("$name==?", match.name):update{name = name, description = desc, dest = dest}
+	updateList()
+end
+
 ---- main program loop ----
 gui.setForm(screen, destScreen)
 while true do
@@ -194,34 +255,11 @@ while true do
 	elseif event == "char" then
 		--gui.keypress(screen, p1, true)
 		if p1 == "a" then
-			io.write "Name? "
-			local name = io.read()
-			local dest = name:gsub("%W+", "")
-			io.write "Description? "
-			local desc = io.read()
-			io.write("Dest ("..dest..")? ")
-			local destt = io.read()
-			if destt ~= "" then
-				dest = destt
-			end
-			
-			-- check for collision
-			local match = railDB:query():where("$name:upper() == ?:upper() or $dest:upper() == ?:upper()", name, dest):selectFirst()
-			if match then
-				print(("Collides with station %s."):format(match.name))
-			else
-				railDB:insert{name = name, description = desc, dest = dest, usage = 0}
-			end
-			updateList()
+			addDest()
 		elseif p1 == "d" then
-			io.write "Name? "
-			local name = io.read()
-			local match = railDB:query():where("$name:upper() == ?:upper()", name):selectFirst()
-			if not match then
-				print("Could not find entry.")
-			else
-				railDB:query():where("$name == ?", name):delete()
-			end
+			deleteDest()
+		elseif p1 == "e" then
+			editDest()
 		elseif p1 == "q" then
 			gui.setForm(screen, downScreen)
 			break
