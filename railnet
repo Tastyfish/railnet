@@ -226,13 +226,13 @@ local function editDest()
 	if not match then
 		print("Could not find entry.")
 		return
-	else
+	end
 	
-	io.write "Name("..match.name..")? "
+	io.write("Name("..match.name..")? ")
 	local name = io.read()
 	if #name == 0 then name = match.name end
 	
-	io.write "Description("..match.description..")? "
+	io.write("Description("..match.description..")? ")
 	local desc = io.read()
 	if #desc == 0 then desc = match.description end
 	
