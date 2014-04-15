@@ -172,7 +172,7 @@ function updateCountdown()
 		countdownLabel.text = tostring(countdown).." sec"
 		countdownLabel:draw(screen)
 		
-		countdownTimer = os.createTimer(1)
+		countdownTimer = os.startTimer(1)
 		countdown = countdown - 1
 	end
 end
@@ -217,12 +217,10 @@ local function deleteDest()
 end
 
 local function editDest()
-	io.write "Old name?"
+	io.write "Old name? "
 	local name = io.read()
 	local match = railDB:query():where("$name:upper() == ?:upper()", name):selectFirst()
 	
-	io.write "New name? "
-	name = io.read()
 	if not match then
 		print("Could not find entry.")
 		return
