@@ -244,7 +244,7 @@ end
 ---- main program loop ----
 gui.setForm(screen, destScreen)
 
-gui.run {
+gui.run(screen, {
 	char = function(c)
 		if c == "a" then
 			addDest()
@@ -257,4 +257,4 @@ gui.run {
 			gui.stop()
 		end
 	end
-}
+})
