@@ -2,7 +2,7 @@
 -- by Tastyfish
 
 os.loadAPI "/extlib/dev"
-os.loadAPI "/extlib/guix"
+os.loadAPI "/extlib/gui"
 os.loadAPI "/extlib/db"
 
 local railDB = db.openOrCreate("/railnet.db", {name="string", dest="string", description="string", usage="number"})
@@ -254,7 +254,7 @@ gui.run {
 			editDest()
 		elseif c == "q" then
 			gui.setForm(screen, downScreen)
-			break
+			gui.stop()
 		end
 	end
 }
