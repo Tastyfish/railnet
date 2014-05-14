@@ -2,7 +2,7 @@
 -- by Tastyfish
 
 os.loadAPI "/extlib/dev"
-os.loadAPI "/extlib/gui"
+os.loadAPI "/extlib/guix"
 os.loadAPI "/extlib/db"
 
 local railDB = db.openOrCreate("/railnet.db", {name="string", dest="string", description="string", usage="number"})
@@ -17,20 +17,20 @@ function setScale(scale)
 	screenH = math.floor(screenH / 2) * 2
 end
 setScale(1.5)
+
 local page = 1
 local pageSize = screenH - 6
-local printTimer, countdownTimer
 local ticketDest, countdown
 
 local function getDestinations(page)
-	return railDB:query():sortByDescending("usage"):skip((page - 1) * pageSize):take(pageSize)
+	return railDB():sortByDescending("usage"):skip((page - 1) * pageSize):take(pageSize)
 end
 
 ---- Forms ---
 local downScreen, destScreen, printScreen, countdownScreen
 
 ---- Down Screen ----
-gui.newLabel{
+gui.newLabel {
 	text = "Out of Order",
 	color = colors.yellow,
 	bounds = rect.new(1, 1, screenW, screenH)
@@ -38,20 +38,20 @@ gui.newLabel{
 downScreen = gui.finishForm()
 
 ---- Destination Selection Screen ----
-gui.newLabel{
+gui.newLabel {
 	text = "ICing Station List",
 	color = colors.cyan,
 	bounds = rect.new(1, 1, screenW, 1)
 }
 local destList
-destList = gui.newListBox{
+destList = gui.newListBox {
 	bounds = rect.new(1, 3, screenW, pageSize),
 	select = function()
 		ticketDest = destList.items[destList.selectedItem]
 		gui.setForm(screen, printScreen)
 	end,
 }
-local pageNumber = gui.newLabel{
+local pageNumber = gui.newLabel {
 	text = "x",
 	bounds = rect.new(screenW / 2 - 1, screenH, 4, 1),
 	color = colors.yellow
@@ -70,7 +70,7 @@ local function updateList()
 	--end)
 	destList:draw(screen)
 end
-gui.newButton{
+gui.newButton {
 	text = "< Prev",
 	bounds = rect.new(2, screenH, screenW / 2 - 3, 1),
 	click = function()
@@ -81,7 +81,7 @@ gui.newButton{
 		updateList()
 	end
 }
-gui.newButton{
+gui.newButton {
 	text = "Next >",
 	bounds = rect.new(screenW / 2 + 3, screenH, screenW / 2 - 3, 1),
 	click = function()
@@ -99,24 +99,23 @@ end)
 
 ---- Printing Screen ----
 gui.newLabel {
-  text = "Printing Ticket",
-  color = colors.cyan,
-  bounds = rect.new(1, 1, screenW, 1)
+	text = "Printing Ticket",
+	color = colors.cyan,
+	bounds = rect.new(1, 1, screenW, 1)
 }
 local printStatusLabel = gui.newLabel {
-  text = "",
-  color = colors.yellow,
-  bounds = rect.new(1, 3, screenW, 1)
+	text = "",
+	color = colors.yellow,
+	bounds = rect.new(1, 3, screenW, 1)
 }
 gui.newButton {
-  text = "Cancel",
-  color = colors.red,
-  highlight = colors.yellow,
-  bounds = rect.new(1, 5, screenW, 3),
-  click = function()
-    gui.setForm(screen, destScreen)
-    printTimer = nil
-  end
+	text = "Cancel",
+	color = colors.red,
+	highlight = colors.yellow,
+	bounds = rect.new(1, 5, screenW, 3),
+	click = function()
+		gui.setForm(screen, destScreen)
+	end
 }
 function updatePrint()
 	-- check paper and ink
@@ -137,8 +136,8 @@ function updatePrint()
 	elseif ink == 0 then
 		printStatusLabel.text = "INK DRY"
 	else
-		printStatusLabel.text = "Blanks: "..paper..
-			" Ink: "..(ink*100/64).."%"
+		printStatusLabel.text = "P: "..paper..
+			" I: "..(ink*100/64).."%"
 	end
 	gui.draw(screen)
 	
@@ -146,7 +145,7 @@ function updatePrint()
 		printer.createTicket(ticketDest)
 		gui.setForm(screen, countdownScreen)
 	else
-		printTimer = os.startTimer(1)
+		gui.newTimer(1, updatePrint)
 	end
 end
 printScreen = gui.finishForm(function()
@@ -155,14 +154,14 @@ end)
 
 ---- Countdown Screen ----
 gui.newLabel {
-  text = "Departing in",
-  color = colors.white,
-  bounds = rect.new(1, screenH / 2, screenW, 1)
+	text = "Departing in",
+	color = colors.white,
+	bounds = rect.new(1, screenH / 2, screenW, 1)
 }
 local countdownLabel = gui.newLabel {
-  text = "x",
-  color = colors.yellow,
-  bounds = rect.new(1, screenH / 2 + 1, screenW, 1)
+	text = "x",
+	color = colors.yellow,
+	bounds = rect.new(1, screenH / 2 + 1, screenW, 1)
 }
 function updateCountdown()
 	if countdown == 1 then
@@ -172,7 +171,7 @@ function updateCountdown()
 		countdownLabel.text = tostring(countdown).." sec"
 		countdownLabel:draw(screen)
 		
-		countdownTimer = os.startTimer(1)
+		gui.newTimer(1, updateCountdown)
 		countdown = countdown - 1
 	end
 end
@@ -196,7 +195,7 @@ local function addDest()
 	end
 	
 	-- check for collision
-	local match = railDB:query():where("$name:upper() == ?:upper() or $dest:upper() == ?:upper()", name, dest):selectFirst()
+	local match = railDB("$name:upper() == ?:upper() or $dest:upper() == ?:upper()", name, dest):selectFirst()
 	if match then
 		print(("Collides with station %s."):format(match.name))
 	else
@@ -208,7 +207,7 @@ end
 local function deleteDest()
 	io.write "Name? "
 	local name = io.read()
-	local match = railDB:query():where("$name:upper() == ?:upper()", name):selectFirst()
+	local match = railDB("$name:upper() == ?:upper()", name):selectFirst()
 	if not match then
 		print("Could not find entry.")
 	else
@@ -219,7 +218,7 @@ end
 local function editDest()
 	io.write "Old name? "
 	local name = io.read()
-	local match = railDB:query():where("$name:upper() == ?:upper()", name):selectFirst()
+	local match = railDB("$name:upper() == ?:upper()", name):selectFirst()
 	
 	if not match then
 		print("Could not find entry.")
@@ -238,37 +237,24 @@ local function editDest()
 	local dest = io.read()
 	if #dest == 0 then dest = match.dest end
 	
-	railDB:query():where("$name==?", match.name):update{name = name, description = desc, dest = dest}
+	railDB("$name==?", match.name):update{name = name, description = desc, dest = dest}
 	updateList()
 end
 
 ---- main program loop ----
 gui.setForm(screen, destScreen)
-while true do
-	local event, p1, p2, p3, p4 = os.pullEvent()
-	if event == "mouse_click" or event == "monitor_touch" then
-		gui.click(screen, p2, p3)
-	elseif event == "mouse_drag" then
-		gui.drag(screen, p2, p3)
-	elseif event == "char" then
-		--gui.keypress(screen, p1, true)
-		if p1 == "a" then
+
+gui.run {
+	char = function(c)
+		if c == "a" then
 			addDest()
-		elseif p1 == "d" then
+		elseif c == "d" then
 			deleteDest()
-		elseif p1 == "e" then
+		elseif c == "e" then
 			editDest()
-		elseif p1 == "q" then
+		elseif c == "q" then
 			gui.setForm(screen, downScreen)
 			break
 		end
-	elseif event == "key" then
-		--gui.keypress(screen, p1, false)
-	elseif event == "timer" then
-		if p1 == printTimer then
-			updatePrint()
-		elseif p1 == countdownTimer then
-			updateCountdown()
-		end
 	end
-end
+}
